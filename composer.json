@@ -1,0 +1,45 @@
+{
+    "name": "nibynool/password-policy",
+    "description": "A set of password policies to enable easy validation of a range of password requirements",
+    "type": "library",
+    "homepage": "https://software.alphageek.com.au/php/passwd-policy",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Michael Lambert",
+            "email": "michael@alphageek.com.au",
+            "homepage": "https://alphageek.com.au/",
+            "role": "Maintainer"
+        }
+    ],
+    "support": {
+        "email": "support@alphageek.com.au",
+        "issues": "https://github.com/nibynool/php-passwd-policy/issues",
+        "source": "https://github.com/nibynool/php-passwd-policy",
+        "docs": "https://software.alphageek.com.au/php/passwd-policy/docs"
+    },
+    "require": {
+        "ext-json": "*",
+        "ext-pspell": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5 || ^9.1",
+        "karriere/code-quality": "^5.1",
+        "povils/phpmnd": "^2.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "NibyNool\\PasswordPolicy\\": "src"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@composer install",
+            "Karriere\\CodeQuality\\SpecificationTest::run"
+        ],
+        "lint": "Karriere\\CodeQuality\\CodeStyleChecker::run",
+        "fix": "Karriere\\CodeQuality\\CodeStyleFixer::run",
+        "coverage": "Karriere\\CodeQuality\\CodeCoverage::run",
+        "md": "Karriere\\CodeQuality\\MessDetector::run"
+    }
+}
