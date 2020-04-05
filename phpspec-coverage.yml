@@ -1,0 +1,14 @@
+suites:
+  main:
+    namespace: NibyNool\PasswordPolicy
+    psr4_prefix: NibyNool\PasswordPolicy
+    src_path: src
+    spec_prefix: spec
+extensions:
+  FriendsOfPhpSpec\PhpSpec\CodeCoverage\CodeCoverageExtension:
+    format:
+      - html
+      - clover
+    output:
+      html: coverage
+      clover: coverage.xml

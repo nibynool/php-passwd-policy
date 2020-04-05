@@ -1,0 +1,10 @@
+suites:
+  main:
+    namespace: NibyNool\PasswordPolicy
+    psr4_prefix: NibyNool\PasswordPolicy
+    src_path: src
+    spec_prefix: spec
+formatter.name: pretty
+code_generation: false
+verbose: true
+stop_on_failure: true
