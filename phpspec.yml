@@ -7,4 +7,4 @@ suites:
 formatter.name: pretty
 code_generation: false
 verbose: true
-stop_on_failure: true
+stop_on_failure: false
