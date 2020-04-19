@@ -9,5 +9,4 @@ namespace NibyNool\PasswordPolicy\Exceptions;
  */
 class PasswordValidationException extends \UnexpectedValueException
 {
-
 }
