@@ -4,6 +4,7 @@ namespace spec\NibyNool\PasswordPolicy\Policies;
 
 use NibyNool\PasswordPolicy\Exceptions\PasswordValidationException;
 use NibyNool\PasswordPolicy\Exceptions\PolicyConfigurationException;
+use NibyNool\PasswordPolicy\PasswdPolicy;
 use NibyNool\PasswordPolicy\Policies\LengthPolicy;
 use PhpSpec\ObjectBehavior;
 
@@ -12,10 +13,13 @@ class LengthPolicySpec extends ObjectBehavior
     /** @var null CONFIG_NONE Configuration that doesn't update the policy at all (default length 8) */
     const CONFIG_NONE = null;
 
-    /** var array CONFIG_SIX Configuration to set the minimum length to 6 */
+    /** @var int CONFIG_SIX Configuration to set the minimum length to 6 */
     const CONFIG_SIX = 6;
 
-    /** var array CONFIG_ZERO Configuration to set the minimum length to 0 */
+    /** @var int CONFIG_TWELVE Configuration to set the minimum length to 12 */
+    const CONFIG_TWELVE = 12;
+
+    /** @var int CONFIG_ZERO Configuration to set the minimum length to 0 */
     const CONFIG_ZERO = 0;
 
     /** @var bool CONFIG_INVALID_POLICY Completely invalid policy */
@@ -103,5 +107,26 @@ class LengthPolicySpec extends ObjectBehavior
 
         $this->validatePassword($long)->shouldReturn(true);
         $this->validatePassword($empty)->shouldReturn(true);
+    }
+
+    /**
+     * Test merging two configurations in combine mode
+     */
+    public function it_merges_in_combine_mode() {
+        self::merge(self::CONFIG_SIX, self::CONFIG_TWELVE, PasswdPolicy::MODE_COMBINE)->shouldReturn(self::CONFIG_TWELVE);
+    }
+
+    /**
+     * Test merging two configurations in maximum mode
+     */
+    public function it_merges_in_maximum_mode() {
+        self::merge(self::CONFIG_SIX, self::CONFIG_TWELVE, PasswdPolicy::MODE_MAXIMUM)->shouldReturn(self::CONFIG_TWELVE);
+    }
+
+    /**
+     * Test merging two configurations in minimum mode
+     */
+    public function it_merges_in_minimum_mode() {
+        self::merge(self::CONFIG_SIX, self::CONFIG_TWELVE, PasswdPolicy::MODE_MINIMIM)->shouldReturn(self::CONFIG_SIX);
     }
 }

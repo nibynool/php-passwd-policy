@@ -4,6 +4,7 @@ namespace spec\NibyNool\PasswordPolicy\Policies;
 
 use NibyNool\PasswordPolicy\Exceptions\PasswordValidationException;
 use NibyNool\PasswordPolicy\Exceptions\PolicyConfigurationException;
+use NibyNool\PasswordPolicy\PasswdPolicy;
 use NibyNool\PasswordPolicy\Policies\CharacterClassPolicy;
 use PhpSpec\ObjectBehavior;
 
@@ -12,19 +13,19 @@ class CharacterClassPolicySpec extends ObjectBehavior
     /** @var null CONFIG_NONE Configuration that doesn't update the policy at all */
     const CONFIG_NONE = null;
 
-    /** var array CONFIG_BASIC The base configuration used by the policy */
+    /** @var array CONFIG_BASIC The base configuration used by the policy */
     const CONFIG_BASIC = [
         'classes' => [
-            'uppercase' => false,
             'lowercase' => true,
-            'number' => false,
+            'uppercase' => false,
             'symbol' => false,
+            'number' => false,
             'accented' => false,
         ],
         'diversity' => 1,
     ];
 
-    /** var array CONFIG_FULL The most stringent configuration used by the policy */
+    /** @var array CONFIG_FULL The most stringent configuration used by the policy */
     const CONFIG_FULL = [
         'classes' => [
             'uppercase' => true,
@@ -36,11 +37,35 @@ class CharacterClassPolicySpec extends ObjectBehavior
         'diversity' => 5,
     ];
 
-    /** var array CONFIG_PARTIAL Configuration that only updates part of the policy */
+    /** @var array CONFIG_PARTIAL Configuration that only updates part of the policy */
     const CONFIG_PARTIAL = [
         'classes' => [
             'symbol' => true,
         ],
+    ];
+
+    /** @var array CONFIG_MERGE The second configuration used for merging */
+    const CONFIG_MERGE = [
+        'classes' => [
+            'lowercase' => false,
+            'uppercase' => true,
+            'symbol' => true,
+            'number' => false,
+            'accented' => false,
+        ],
+        'diversity' => 2,
+    ];
+
+    /** @var array CONFIG_BASIC_PARTIAL_MERGED Result of merging BASIC and PARTIAL policies */
+    const CONFIG_MERGED = [
+        'classes' => [
+            'lowercase' => true,
+            'uppercase' => true,
+            'symbol' => true,
+            'number' => false,
+            'accented' => false,
+        ],
+        'diversity' => 3,
     ];
 
     /** @var string CONFIG_JSON A JSON configuration for testing */
@@ -361,6 +386,9 @@ class CharacterClassPolicySpec extends ObjectBehavior
         $this->test_process('json');
     }
 
+    /**
+     * Ensure the correct error is returned when a character class is missed
+     */
     public function it_detects_missed_character_classes()
     {
         $this->beConstructedWith($this->configs['partial']);
@@ -368,11 +396,35 @@ class CharacterClassPolicySpec extends ObjectBehavior
         $this->getLastMisses()->shouldReturn('You did not enter a number or a symbol.');
     }
 
+    /**
+     * Ensure the character classes that are included are detected correctly
+     */
     public function it_detects_matched_character_classes()
     {
         $this->beConstructedWith($this->configs['partial']);
         $this->shouldThrow(new PasswordValidationException($this->badPasswords['partial']['Aa']))->during('validatePassword', ['Aa']);
         $this->getLastMatches()->shouldReturn('You entered an uppercase letter and a lowercase letter.');
+    }
+
+    /**
+     * Test merging two configurations in combine mode
+     */
+    public function it_merges_in_combine_mode() {
+        self::merge(self::CONFIG_BASIC, self::CONFIG_MERGE, PasswdPolicy::MODE_COMBINE)->shouldReturn(self::CONFIG_MERGED);
+    }
+
+    /**
+     * Test merging two configurations in maximum mode
+     */
+    public function it_merges_in_maximum_mode() {
+        self::merge(self::CONFIG_BASIC, self::CONFIG_MERGE, PasswdPolicy::MODE_MAXIMUM)->shouldReturn(self::CONFIG_MERGE);
+    }
+
+    /**
+     * Test merging two configurations in minimum mode
+     */
+    public function it_merges_in_minimum_mode() {
+        self::merge(self::CONFIG_BASIC, self::CONFIG_MERGE, PasswdPolicy::MODE_MINIMIM)->shouldReturn(self::CONFIG_BASIC);
     }
 
     /**

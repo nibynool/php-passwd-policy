@@ -2,9 +2,11 @@
 
 namespace NibyNool\PasswordPolicy\Policies;
 
+use NibyNool\PasswordPolicy\Exceptions\InvalidMergeModeException;
 use NibyNool\PasswordPolicy\Exceptions\PasswordValidationException;
 use NibyNool\PasswordPolicy\Exceptions\PolicyConfigurationException;
 use NibyNool\PasswordPolicy\Interfaces\PolicyInterface;
+use NibyNool\PasswordPolicy\PasswdPolicy;
 
 /**
  * Character Class Policy
@@ -25,7 +27,7 @@ class CharacterClassPolicy implements PolicyInterface
     /** @var string $errorMessageAll Error message password fails validation and all classes are required */
     protected $errorMessageAll = 'Your password must contain at least %s.';
 
-    /** @var string $descMessageSome Description message to be passed to `sprintf` when only some classes are required */
+    /** @var string $descMessageSome Description message to be passed to `sprintf` when some classes are required */
     protected $descMessageSome = 'Must contain at least %s of %s.';
 
     /** @var string $descMessageAll Description message to be passed to `sprintf` when all classes are required */
@@ -66,12 +68,15 @@ class CharacterClassPolicy implements PolicyInterface
         'uppercase' => '/[A-Z]/',
         'lowercase' => '/[a-z]/',
         'number' => '/[0-9]/',
-        'symbol' => '/[!"#$%&\'()*+,.:;<=>?@[^_`{|}~‘’“”•–—˜™›œ¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿Æ×Þßæ÷þ\-\/\] ]/',
-        'accented' => '/[šžŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïðñòóôõöøùúûüýÿ]/',
+        'symbol' => '/[!"#$%&\'()*+,.:;<=>?@[^_`{|}~‘’“”•–—˜™›œ¡¢£' .
+            '¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿Æ×Þßæ÷þ\-\/\] ]/',
+        'accented' => '/[šžŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜ' .
+            'Ýàáâãäåçèéêëìíîïðñòóôõöøùúûüýÿ]/',
     ];
 
 //    /**
-//     * @var string[] $classCombinations Array of all possible combinations of character classes (this includes emojis for future use)
+//     * @var string[] $classCombinations Array of all possible combinations of character classes
+//     *      (this includes emojis for future use)
 //     */
 //    private $classCombinations = [
 //        'A' => '',
@@ -212,7 +217,7 @@ class CharacterClassPolicy implements PolicyInterface
         $missingClasses = [];
 
         foreach ($this->config['classes'] as $class => $required) {
-            $match = preg_match($this->classRegEx[$class].'u', $password, $matches);
+            $match = preg_match($this->classRegEx[$class] . 'u', $password);
             if ($match) {
                 if ($required) {
                     $foundClasses[] = $this->descriptions[$class];
@@ -266,7 +271,7 @@ class CharacterClassPolicy implements PolicyInterface
     {
         $requiredClassCount = 0;
 
-        foreach ($this->config['classes'] as $class => $required) {
+        foreach ($this->config['classes'] as $required) {
             if ($required) {
                 $requiredClassCount++;
             }
@@ -324,5 +329,77 @@ class CharacterClassPolicy implements PolicyInterface
         $both = array_filter(array_merge(array($first), $last), 'strlen');
 
         return implode(' ' . $finalJoiner . ' ', $both);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function merge($policyA, $policyB, $mode = PasswdPolicy::MODE_COMBINE)
+    {
+        switch ($mode) {
+            case PasswdPolicy::MODE_COMBINE:
+                $aAll = count(array_filter($policyA['classes'])) === $policyA['diversity'];
+                $bAll = count(array_filter($policyB['classes'])) === $policyB['diversity'];
+                $all = $aAll && $bAll;
+
+                $configuration = null;
+                $classes = array_merge(array_filter($policyA['classes']), array_filter($policyB['classes']));
+                foreach (array_merge(array_keys($policyA['classes']), array_keys($policyB['classes'])) as $class) {
+                    if (!array_key_exists($class, $classes)) {
+                        $classes[$class] = false;
+                    }
+                }
+
+                if ($all) {
+                    $diversity = count(array_filter($classes));
+                } elseif ($policyA['diversity'] > $policyB['diversity']) {
+                    $diversity = $policyA['diversity'];
+                } else {
+                    $diversity = $policyB['diversity'];
+                }
+
+                $configuration = [
+                    'classes' => $classes,
+                    'diversity' => $diversity,
+                ];
+                break;
+            case PasswdPolicy::MODE_MAXIMUM:
+                $configuration = self::strongestOrWeakestPolicy($policyA, $policyB, true);
+                break;
+            case PasswdPolicy::MODE_MINIMIM:
+                $configuration = self::strongestOrWeakestPolicy($policyA, $policyB, false);
+                break;
+            default:
+                throw new InvalidMergeModeException($mode . ' is not a valid merge mode');
+        }
+
+        return $configuration;
+    }
+
+    /**
+     * Return either the strongest or weakest policy configuration
+     *
+     * @param array $policyA A policy configuration
+     * @param array $policyB A policy configuration
+     * @param bool $strongest If true return the strongest, otherwise return the weakest
+     *
+     * @return array
+     */
+    protected static function strongestOrWeakestPolicy($policyA, $policyB, $strongest = true)
+    {
+        if ($policyA === $policyB) {
+            return $policyA;
+        }
+        if ($policyA['diversity'] > $policyB['diversity']) {
+            return $strongest ? $policyA : $policyB;
+        }
+        if ($policyA['diversity'] < $policyB['diversity']) {
+            return $strongest ? $policyB : $policyA;
+        }
+        if (count(array_filter($policyA['classes'])) > count(array_filter($policyB['classes']))) {
+            return $strongest ? $policyB : $policyA;
+        }
+
+        return $strongest ? $policyA : $policyB;
     }
 }

@@ -2,9 +2,11 @@
 
 namespace NibyNool\PasswordPolicy\Policies;
 
+use NibyNool\PasswordPolicy\Exceptions\InvalidMergeModeException;
 use NibyNool\PasswordPolicy\Exceptions\PasswordValidationException;
 use NibyNool\PasswordPolicy\Exceptions\PolicyConfigurationException;
 use NibyNool\PasswordPolicy\Interfaces\PolicyInterface;
+use NibyNool\PasswordPolicy\PasswdPolicy;
 
 /**
  * Length Policy
@@ -13,7 +15,7 @@ use NibyNool\PasswordPolicy\Interfaces\PolicyInterface;
  */
 class LengthPolicy implements PolicyInterface
 {
-    /** @var string $errorMessage Error message to be passed to `sprintf` for formatting when password fails validation */
+    /** @var string $errorMessage Error message to be passed to `sprintf` when password fails validation */
     protected $errorMessage = 'Minimum length is set to %s, but %s characters were entered.';
 
     /** @var string $descriptionMessage Description message to be passed to `sprintf` */
@@ -55,5 +57,26 @@ class LengthPolicy implements PolicyInterface
         }
 
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function merge($policyA, $policyB, $mode = PasswdPolicy::MODE_COMBINE)
+    {
+        $configuration = null;
+        switch ($mode) {
+            case PasswdPolicy::MODE_COMBINE:
+            case PasswdPolicy::MODE_MAXIMUM:
+                $configuration = $policyA >= $policyB ? $policyA : $policyB;
+                break;
+            case PasswdPolicy::MODE_MINIMIM:
+                $configuration = $policyA < $policyB ? $policyA : $policyB;
+                break;
+            default:
+                throw new InvalidMergeModeException($mode . ' is not a valid merge mode');
+        }
+
+        return $configuration;
     }
 }

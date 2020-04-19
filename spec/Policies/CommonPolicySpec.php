@@ -4,6 +4,7 @@ namespace spec\NibyNool\PasswordPolicy\Policies;
 
 use NibyNool\PasswordPolicy\Exceptions\PasswordValidationException;
 use NibyNool\PasswordPolicy\Exceptions\PolicyConfigurationException;
+use NibyNool\PasswordPolicy\PasswdPolicy;
 use NibyNool\PasswordPolicy\Policies\CommonPolicy;
 use PhpSpec\ObjectBehavior;
 
@@ -12,22 +13,22 @@ class CommonPolicySpec extends ObjectBehavior
     /** @var null CONFIG_NONE Configuration that doesn't update the policy at all (default set 10000) */
     const CONFIG_NONE = null;
 
-    /** var array CONFIG_ONE_HUNDRED Configuration to set the common password set to 100 */
+    /** @var array CONFIG_ONE_HUNDRED Configuration to set the common password set to 100 */
     const CONFIG_ONE_HUNDRED = 100;
 
-    /** var array CONFIG_FIVE_HUNDRED Configuration to set the common password set to 500 */
+    /** @var array CONFIG_FIVE_HUNDRED Configuration to set the common password set to 500 */
     const CONFIG_FIVE_HUNDRED = 500;
 
-    /** var array CONFIG_ONE_THOUSAND Configuration to set the common password set to 1000 */
+    /** @var array CONFIG_ONE_THOUSAND Configuration to set the common password set to 1000 */
     const CONFIG_ONE_THOUSAND = 1000;
 
-    /** var array CONFIG_TEN_THOUSAND Configuration to set the common password set to 10000 */
+    /** @var array CONFIG_TEN_THOUSAND Configuration to set the common password set to 10000 */
     const CONFIG_TEN_THOUSAND = 10000;
 
-    /** var array CONFIG_HUNDRED_THOUSAND Configuration to set the common password set to 100000 */
+    /** @var array CONFIG_HUNDRED_THOUSAND Configuration to set the common password set to 100000 */
     const CONFIG_HUNDRED_THOUSAND = 100000;
 
-    /** var array CONFIG_ONE_MILLION Configuration to set the common password set to 1000000 */
+    /** @var array CONFIG_ONE_MILLION Configuration to set the common password set to 1000000 */
     const CONFIG_ONE_MILLION = 1000000;
 
     /** @var bool CONFIG_INVALID_POLICY Completely invalid policy */
@@ -179,5 +180,26 @@ class CommonPolicySpec extends ObjectBehavior
         $this->shouldThrow(new PasswordValidationException('A common password was entered.'))->during('validatePassword', [$this->lastPassword['1000']]);
         $this->shouldThrow(new PasswordValidationException('A common password was entered.'))->during('validatePassword', [$this->lastPassword['500']]);
         $this->shouldThrow(new PasswordValidationException('A common password was entered.'))->during('validatePassword', [$this->lastPassword['100']]);
+    }
+
+    /**
+     * Test merging two configurations in combine mode
+     */
+    public function it_merges_in_combine_mode() {
+        self::merge(self::CONFIG_FIVE_HUNDRED, self::CONFIG_ONE_THOUSAND, PasswdPolicy::MODE_COMBINE)->shouldReturn(self::CONFIG_ONE_THOUSAND);
+    }
+
+    /**
+     * Test merging two configurations in maximum mode
+     */
+    public function it_merges_in_maximum_mode() {
+        self::merge(self::CONFIG_FIVE_HUNDRED, self::CONFIG_ONE_THOUSAND, PasswdPolicy::MODE_MAXIMUM)->shouldReturn(self::CONFIG_ONE_THOUSAND);
+    }
+
+    /**
+     * Test merging two configurations in minimum mode
+     */
+    public function it_merges_in_minimum_mode() {
+        self::merge(self::CONFIG_FIVE_HUNDRED, self::CONFIG_ONE_THOUSAND, PasswdPolicy::MODE_MINIMIM)->shouldReturn(self::CONFIG_FIVE_HUNDRED);
     }
 }

@@ -39,4 +39,15 @@ interface PolicyInterface
      * @throws PasswordValidationException
      */
     public function validatePassword($password);
+
+    /**
+     * Merge two configurations and return a configuration set based on the mode
+     *
+     * @param mixed $policyA A configuration
+     * @param mixed $policyB A configuration
+     * @param string $mode The merge mode
+     *
+     * @return mixed
+     */
+    public static function merge($policyA, $policyB, $mode);
 }

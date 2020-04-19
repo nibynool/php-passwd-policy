@@ -2,9 +2,11 @@
 
 namespace NibyNool\PasswordPolicy\Policies;
 
+use NibyNool\PasswordPolicy\Exceptions\InvalidMergeModeException;
 use NibyNool\PasswordPolicy\Exceptions\PasswordValidationException;
 use NibyNool\PasswordPolicy\Exceptions\PolicyConfigurationException;
 use NibyNool\PasswordPolicy\Interfaces\PolicyInterface;
+use NibyNool\PasswordPolicy\PasswdPolicy;
 
 /**
  * Common Policy
@@ -13,7 +15,7 @@ use NibyNool\PasswordPolicy\Interfaces\PolicyInterface;
  */
 class CommonPolicy implements PolicyInterface
 {
-    /** @var string $errorMessage Error message to be passed to `sprintf` for formatting when password fails validation */
+    /** @var string $errorMessage Error message to be passed to `sprintf` when password fails validation */
     protected $errorMessage = 'A common password was entered.';
 
     /** @var string $descriptionMessage Description message to be passed to `sprintf` */
@@ -28,6 +30,7 @@ class CommonPolicy implements PolicyInterface
     /** @var string $passwordSetFileNames Format of the filename containing the password set */
     protected $passwordSetFileNames = '10-million-password-list-top-%s.txt';
 
+    /** @var string $passwordSetFile Fully qualified filename for the password set being used */
     protected $passwordSetFile;
 
     /**
@@ -64,18 +67,39 @@ class CommonPolicy implements PolicyInterface
     {
         $validPassword = true;
 
-        $fh = fopen($this->passwordSetFile, 'rb');
-        while (!feof($fh)) {
-            if ($password === trim(fgets($fh))) {
+        $fileHandle = fopen($this->passwordSetFile, 'rb');
+        while (!feof($fileHandle)) {
+            if ($password === trim(fgets($fileHandle))) {
                 $validPassword = false;
             }
         }
-        fclose($fh);
+        fclose($fileHandle);
 
         if (!$validPassword) {
             throw new PasswordValidationException($this->errorMessage);
         }
 
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function merge($policyA, $policyB, $mode = PasswdPolicy::MODE_COMBINE)
+    {
+        $configuration = null;
+        switch ($mode) {
+            case PasswdPolicy::MODE_COMBINE:
+            case PasswdPolicy::MODE_MAXIMUM:
+                $configuration = $policyA >= $policyB ? $policyA : $policyB;
+                break;
+            case PasswdPolicy::MODE_MINIMIM:
+                $configuration = $policyA < $policyB ? $policyA : $policyB;
+                break;
+            default:
+                throw new InvalidMergeModeException($mode . ' is not a valid merge mode');
+        }
+
+        return $configuration;
     }
 }
