@@ -1,13 +1,30 @@
-version: "3.2"
+version: '2'
 services:
-  php:
-    image: php:7.4-cli
-    command: composer install; composer run test
+  php56:
+    build:
+      context: .
+      dockerfile: Docker/PHP5.6/Dockerfile
     volumes:
-      - .:/app
-  composer:
-    restart: 'no'
-    image: composer:1.10.1
-    command: composer test
+      - ./src:/app/src
+      - ./spec:/app/spec
+  php70:
+    build:
+      context: .
+      dockerfile: Docker/PHP7.0/Dockerfile
     volumes:
-      - .:/app
+      - ./src:/app/src
+      - ./spec:/app/spec
+  php72:
+    build:
+      context: .
+      dockerfile: Docker/PHP7.2/Dockerfile
+    volumes:
+      - ./src:/app/src
+      - ./spec:/app/spec
+  php74:
+    build:
+      context: .
+      dockerfile: Docker/PHP7.4/Dockerfile
+    volumes:
+      - ./src:/app/src
+      - ./spec:/app/spec
