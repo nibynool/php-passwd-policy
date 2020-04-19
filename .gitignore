@@ -1,3 +1,7 @@
-vendor
-.idea
-composer.lock
+/vendor
+/.idea/*
+!/.idea/php.xml
+!/.idea/php-test-framework.xml
+!/.idea/phpspec.xml
+!/.idea/remote-mappings.xml
+/composer.lock
