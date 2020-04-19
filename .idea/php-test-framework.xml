@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PhpTestFrameworkSettings">
+    <test_tools>
+      <tool tool_name="PHPSpec">
+        <settings>
+          <configurations>
+            <configuration_by_sdk interpreter_id="38389e43-a43c-4d9f-81e7-d1aa2e8d1aa3" configuration_file_path="/app/phpspec.yml" executable_path="/app/vendor/phpspec/phpspec/bin/phpspec" use_configuration_file="true" />
+            <configuration_by_sdk interpreter_id="08e6e519-1a6f-4071-8b66-10913105b67a" configuration_file_path="/app/phpspec.yml" executable_path="/app/vendor/phpspec/phpspec/bin/phpspec" use_configuration_file="true" />
+            <configuration_by_sdk interpreter_id="56b0ce10-e67c-4357-bcb9-c96a2a5ac163" configuration_file_path="/app/phpspec.yml" executable_path="/app/vendor/phpspec/phpspec/bin/phpspec" use_configuration_file="true" />
+            <configuration_by_sdk interpreter_id="099eb9e0-bb4e-4c8f-bf8d-96c06a886d81" configuration_file_path="/app/phpspec.yml" executable_path="/app/vendor/phpspec/phpspec/bin/phpspec" use_configuration_file="true" />
+          </configurations>
+        </settings>
+      </tool>
+    </test_tools>
+  </component>
+  <component name="PhpTestFrameworkVersionCache">
+    <tools_cache>
+      <tool tool_name="PHPSpec">
+        <cache>
+          <versions>
+            <info id="interpreter-08e6e519-1a6f-4071-8b66-10913105b67a" version="3.4.3" />
+            <info id="interpreter-099eb9e0-bb4e-4c8f-bf8d-96c06a886d81" version="6.1.1" />
+            <info id="interpreter-38389e43-a43c-4d9f-81e7-d1aa2e8d1aa3" version="3.4.3" />
+            <info id="interpreter-56b0ce10-e67c-4357-bcb9-c96a2a5ac163" version="6.1.1" />
+          </versions>
+        </cache>
+      </tool>
+    </tools_cache>
+  </component>
+</project>
