@@ -19,9 +19,7 @@
         "docs": "https://software.alphageek.com.au/php/passwd-policy/docs"
     },
     "require": {
-        "php": "^5.6 || ^7.0 || ^7.2 || ^7.4",
-        "ext-json": "*",
-        "ext-pspell": "*"
+        "php": "^5.6 || ^7.0 || ^7.2 || ^7.4"
     },
     "require-dev": {
         "friends-of-phpspec/phpspec-code-coverage": "^3.1 || ^4.1 || ^4.3",
@@ -30,6 +28,10 @@
         "phpunit/phpunit": "^5.7 || ^6.5 || ^8.5 || ^9.1",
         "povils/phpmnd": "^1.1 || ^2.2",
         "squizlabs/php_codesniffer": "^3.3"
+    },
+    "suggest": {
+        "ext-json": "Allows auto-decoding of JSON configuration",
+        "ext-pspell": "Required to enable the dictionary validation"
     },
     "autoload": {
         "psr-4": {

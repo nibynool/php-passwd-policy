@@ -156,7 +156,11 @@ class CharacterClassPolicy implements PolicyInterface
             throw new PolicyConfigurationException('Invalid character class policy provided');
         }
         if (is_string($config)) {
-            $config = json_decode($config, true);
+            if (extension_loaded('json')) {
+                $config = json_decode($config, true);
+            } else {
+                throw new PolicyConfigurationException('JSON configuration provided and JSON extension not enabled');
+            }
         }
         foreach ($config as $key => $value) {
             if ($key === 'classes') {

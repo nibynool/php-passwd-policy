@@ -33,6 +33,10 @@ class DictionaryPolicy implements PolicyInterface
      */
     public function __construct($config = self::DEFAULT_DICTIONARY)
     {
+        if (!extension_loaded('pspell')) {
+            trigger_error('Dictionary Policy aborted as Pspell is not available', E_USER_WARNING);
+            return;
+        }
         if ($config === null) {
             $config = self::DEFAULT_DICTIONARY;
         }
@@ -68,6 +72,11 @@ class DictionaryPolicy implements PolicyInterface
      */
     public function validatePassword($password)
     {
+        if (!extension_loaded('pspell')) {
+            trigger_error('Dictionary Policy not enforced as Pspell is not available', E_USER_WARNING);
+            return true;
+        }
+
         foreach (array_keys($this->dictionaries) as $language) {
             $this->checkDictionary($language, $password);
         }
